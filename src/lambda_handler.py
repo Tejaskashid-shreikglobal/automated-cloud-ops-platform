@@ -1,12 +1,11 @@
-
-"""Lambda entry point for incident processing."""
-
 import json
 import os
-
 import boto3
 
-from incident_engine import validate_incident, classify_severity
+if __package__:
+    from .incident_engine import validate_incident, classify_severity
+else:
+    from incident_engine import validate_incident, classify_severity
 
 dynamodb = boto3.resource("dynamodb")
 
@@ -18,46 +17,39 @@ def lambda_handler(event, context):
         raise RuntimeError("INCIDENT_TABLE environment variable is missing")
 
     table = dynamodb.Table(table_name)
+    records = event.get("Records", [])
     results = []
 
-    for record in event.get("Records", []):
-        try:
-            incident = json.loads(record["body"])
-            validate_incident(incident)
+    for record in records:
+        body = record.get("body", "{}")
+        incident = json.loads(body)
 
-            incident_id = incident["incident_id"]
-            severity = classify_severity(incident["incident_type"])
+        validate_incident(incident)
+        severity = classify_severity(incident["incident_type"])
 
-            table.put_item(
-                Item={
-                    "incident_id": incident_id,
-                    "resource_name": incident["resource_name"],
-                    "incident_type": incident["incident_type"],
-                    "severity": severity,
-                    "state": "RECEIVED",
-                    "description": incident["description"],
-                    "timestamp": incident["timestamp"],
-                },
-                ConditionExpression="attribute_not_exists(incident_id)",
-            )
+        item = {
+            **incident,
+            "severity": severity,
+            "state": "RECEIVED",
+        }
 
-            results.append({
-                "incident_id": incident_id,
-                "severity": severity,
-                "status": "RECEIVED",
-            })
+        table.put_item(
+            Item=item,
+            ConditionExpression="attribute_not_exists(incident_id)",
+        )
 
-        except Exception as exc:
-            print(json.dumps({
-                "event": "incident_processing_failed",
-                "error": str(exc),
-            }))
-            raise
+        results.append({
+            "incident_id": incident["incident_id"],
+            "status": "RECEIVED",
+        })
 
-    print(json.dumps({
-        "event": "incident_batch_processed",
-        "count": len(results),
+        print(json.dumps({
+            "event": "incident_received",
+            "incident_id": incident["incident_id"],
+            "severity": severity,
+        }))
+
+    return {
+        "processed": len(results),
         "results": results,
-    }))
-
-    return {"processed": len(results), "results": results}
+    }
