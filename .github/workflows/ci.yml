@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest boto3
+          python -m pip install pytest boto3
 
       - name: Run tests
         run: python -m pytest -v
@@ -33,6 +33,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build Lambda package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+          python build_lambda.py
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -45,15 +56,3 @@ jobs:
 
       - name: Terraform validate
         run: terraform -chdir=terraform validate
-    
-      - name: Build Lambda package
-        shell: bash
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-          python build_lambda.py
-    
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
