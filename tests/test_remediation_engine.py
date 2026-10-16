@@ -1,4 +1,3 @@
-
 from src.remediation_engine import RemediationEngine
 
 
@@ -46,24 +45,6 @@ def test_failed_remediation_can_recover_and_audit_both_attempts():
     assert len(engine.audit_log) == 2
     assert engine.records[incident_id]["attempts"] == 2
     assert all(entry["timestamp"] for entry in engine.audit_log)
-
-
-def test_retry_limit():
-    engine = RemediationEngine(max_attempts=2)
-    engine.remediate("INC-105", "service_unhealthy", simulate_failure=True)
-    engine.remediate("INC-105", "service_unhealthy", simulate_failure=True)
-    result = engine.remediate(
-        "INC-105", "service_unhealthy", simulate_failure=True
-    )
-    assert result["status"] == "BLOCKED"
-    assert result["message"] == "Retry limit reached"
-
-
-def test_unknown_incident_is_blocked():
-    engine = RemediationEngine()
-    result = engine.remediate("INC-106", "unknown_type")
-    assert result["status"] == "BLOCKED"
-    assert result["message"] == "No approved action for incident type"
 
 
 def test_retry_limit():
