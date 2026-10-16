@@ -51,7 +51,7 @@ terraform -chdir=terraform plan
 
 ## Test Results
 
-The local test suite has passed 21 tests in the latest reported run. Terraform validation and a plan proposing 11 resources were also reported successful.
+The local test suite passed 29 tests in the latest verified run. Terraform validation and a plan proposing 11 resources were also reported successful.
 
 ## Security and Cost Notes
 
@@ -66,7 +66,7 @@ The local test suite has passed 21 tests in the latest reported run. Terraform v
 
 The project has been tested locally with automated tests and mocked AWS dependencies. Actual SQS, Lambda, DynamoDB, CloudWatch, and DLQ integration has not yet been verified in AWS.
 
-GitHub Actions workflow configuration exists locally, but a successful run on GitHub has not yet been confirmed.
+GitHub Actions CI has a confirmed successful run, including Python tests and Terraform validation.
 
 ## Future Improvements
 

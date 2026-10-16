@@ -17,10 +17,10 @@ This project implements a prototype platform for automated cloud incident proces
 
 ## 3. Architecture
 
-Incident Event / JSON  
-→ Amazon SQS incident queue  
-→ AWS Lambda incident processor  
-→ Amazon DynamoDB incident records
+Incident Event / JSON
+-> Amazon SQS incident queue
+-> AWS Lambda incident processor
+-> Amazon DynamoDB incident records
 
 Supporting components:
 - Amazon SQS dead-letter queue for messages that repeatedly fail processing.
@@ -45,15 +45,15 @@ The AWS architecture is defined in code; live AWS integration has not been verif
 
 The prototype validates required incident fields and classifies supported incident types:
 
-- `service_unhealthy` — HIGH
-- `config_drift` — MEDIUM
-- `temp_backlog` — LOW
+- `service_unhealthy` â€” HIGH
+- `config_drift` â€” MEDIUM
+- `temp_backlog` â€” LOW
 
 The local remediation engine simulates supported actions, enforces approval for configuration restoration, limits retries, and avoids repeating a successful remediation.
 
 ## 6. Testing and Validation
 
-- Python test suite: 21 tests passed locally.
+- Python test suite: 29 tests passed locally.
 - Lambda handler tests: 5 tests passed.
 - Terraform formatting check: completed without reported formatting errors.
 - Terraform validation: successful.
@@ -90,4 +90,4 @@ A real deployment would require review of IAM policies, costs, monitoring, secre
 
 ## 10. Conclusion
 
-The project demonstrates a tested local incident-processing prototype, simulated self-healing logic, infrastructure-as-code definitions, and CI validation. The local Python suite passed all 21 tests, Terraform validation succeeded, and the latest GitHub Actions run showed success. Live AWS deployment and end-to-end cloud behavior remain future validation steps.
+The project demonstrates a tested local incident-processing prototype, simulated self-healing logic, infrastructure-as-code definitions, and CI validation. The local Python suite passed all 29 tests, Terraform validation succeeded, and the latest GitHub Actions run showed success. Live AWS deployment and end-to-end cloud behavior remain future validation steps.
