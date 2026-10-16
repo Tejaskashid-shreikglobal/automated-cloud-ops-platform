@@ -7,7 +7,10 @@ if __package__:
 else:
     from incident_engine import validate_incident, classify_severity
 
-dynamodb = boto3.resource("dynamodb")
+dynamodb = boto3.resource(
+    "dynamodb",
+    region_name=os.environ.get("AWS_REGION", "ap-south-1"),
+)
 
 
 def lambda_handler(event, context):
