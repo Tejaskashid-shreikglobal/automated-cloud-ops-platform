@@ -13,7 +13,7 @@ PACKAGE = ROOT / "build" / "lambda"
 if str(PACKAGE) not in sys.path:
     sys.path.insert(0, str(PACKAGE))
 
-import lambda_handler
+from src import lambda_handler
 
 
 @pytest.fixture
