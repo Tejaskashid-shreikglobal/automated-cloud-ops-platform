@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+from botocore.exceptions import ClientError
 
 # Load the locally built Lambda package.
 ROOT = Path(__file__).resolve().parents[1]
@@ -96,7 +97,29 @@ def test_missing_incident_field_is_rejected(mock_table):
 
 
 def test_database_error_is_propagated(mock_table):
-    mock_table.put_item.side_effect = RuntimeError("simulated database error")
+    mock_table.put_item.side_effect = RuntimeError(
+        "simulated database error"
+    )
 
     with pytest.raises(RuntimeError, match="simulated database error"):
         lambda_handler.lambda_handler(make_event(), None)
+
+
+def test_duplicate_incident_is_not_retried(mock_table):
+    mock_table.put_item.side_effect = ClientError(
+        {
+            "Error": {
+                "Code": "ConditionalCheckFailedException",
+                "Message": "Incident already exists",
+            }
+        },
+        "PutItem",
+    )
+
+    result = lambda_handler.lambda_handler(make_event(), None)
+
+    assert result["processed"] == 1
+    assert result["results"][0]["incident_id"] == "INC-TEST-001"
+    assert result["results"][0]["status"] == "DUPLICATE"
+
+    mock_table.put_item.assert_called_once()

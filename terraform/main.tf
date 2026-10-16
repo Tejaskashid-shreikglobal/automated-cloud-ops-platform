@@ -62,3 +62,36 @@ resource "aws_s3_bucket_versioning" "incident_evidence" {
     status = "Enabled"
   }
 }
+resource "aws_lambda_function" "incident_processor" {
+  function_name = "${var.project_name}-processor-${random_id.suffix.hex}"
+  role          = aws_iam_role.incident_lambda.arn
+
+  runtime = "python3.12"
+  handler = "lambda_handler.lambda_handler"
+
+  filename         = "${path.module}/lambda_package.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambda_package.zip")
+
+  timeout     = 30
+  memory_size = 128
+
+  environment {
+    variables = {
+      INCIDENT_TABLE = aws_dynamodb_table.incidents.name
+      AWS_REGION     = var.aws_region
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy.incident_lambda,
+    aws_cloudwatch_log_group.incident_processor
+  ]
+}
+
+resource "aws_lambda_event_source_mapping" "incident_queue" {
+  event_source_arn = aws_sqs_queue.incident_queue.arn
+  function_name    = aws_lambda_function.incident_processor.arn
+
+  batch_size = 1
+  enabled    = true
+}

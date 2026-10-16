@@ -1,6 +1,7 @@
 import json
 import os
 import boto3
+from botocore.exceptions import ClientError
 
 if __package__:
     from .incident_engine import validate_incident, classify_severity
@@ -36,10 +37,27 @@ def lambda_handler(event, context):
             "state": "RECEIVED",
         }
 
-        table.put_item(
-            Item=item,
-            ConditionExpression="attribute_not_exists(incident_id)",
-        )
+        try:
+            table.put_item(
+                Item=item,
+                ConditionExpression="attribute_not_exists(incident_id)",
+            )
+        except ClientError as exc:
+            error_code = exc.response.get("Error", {}).get("Code")
+
+            if error_code == "ConditionalCheckFailedException":
+                results.append({
+                    "incident_id": incident["incident_id"],
+                    "status": "DUPLICATE",
+                })
+
+                print(json.dumps({
+                    "event": "duplicate_incident",
+                    "incident_id": incident["incident_id"],
+                }))
+                continue
+
+            raise
 
         results.append({
             "incident_id": incident["incident_id"],
