@@ -1,0 +1,7 @@
+{
+  "incident_id": "INC-0008",
+  "timestamp": "2026-10-15T15:53:11.037962+00:00",
+  "resource_name": "app-resource-sim-08",
+  "incident_type": "config_drift",
+  "description": "Simulated configuration differs from expected state"
+}

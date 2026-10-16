@@ -1,0 +1,7 @@
+{
+  "incident_id": "INC-0007",
+  "timestamp": "2026-10-15T15:53:11.037962+00:00",
+  "resource_name": "app-resource-sim-07",
+  "incident_type": "service_unhealthy",
+  "description": "Simulated application service is unhealthy"
+}

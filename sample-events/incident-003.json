@@ -1,0 +1,7 @@
+{
+  "incident_id": "INC-0003",
+  "timestamp": "2026-10-15T15:53:11.035365+00:00",
+  "resource_name": "app-resource-sim-03",
+  "incident_type": "temp_backlog",
+  "description": "Simulated temporary-file backlog detected"
+}

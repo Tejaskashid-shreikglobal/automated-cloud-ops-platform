@@ -1,0 +1,15 @@
+﻿
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+build/
+terraform/lambda_package.zip
+.env
+.env.*
+!.env.example
